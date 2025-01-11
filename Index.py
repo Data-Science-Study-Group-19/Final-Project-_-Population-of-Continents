@@ -33,6 +33,10 @@ class Table:
         print(f"Subset of {self.name}:")
         print(subset)
 
+    def sort_by_population(self):
+        sorted_data = self.data.sort_values(by='Pop.', ascending=False) 
+        return sorted_data
+
 # URL of the Wikipedia page
 url = "https://en.wikipedia.org/wiki/List_of_continents_and_continental_subregions_by_population"
 
@@ -65,8 +69,11 @@ combined_df = combined_df.replace('—', '0', regex=True)
 # Save the combined DataFrame to a single CSV file
 combined_df.to_csv("TestSubregions.csv", index=True)
 
-# Example: Display user-defined subset of the 10th table
-table_10 = table_objects[10]  # Accessing the 10th table
-row_start, row_end = 0, 2  # User input for rows
-col_start, col_end = 0, 2  # User input for columns
-table_10.display_subset(row_start, row_end, col_start, col_end)
+# Example: Display defined subset of 0th data table
+table_0 = table_objects[0]  # Accessing the 10th table
+row_start, row_end = 0, 2  # 
+col_start, col_end = 0, 2  # 
+table_0.display_subset(row_start, row_end, col_start, col_end)
+
+sorted_table_0 = table_0.sort_by_population()
+print(sorted_table_0)
