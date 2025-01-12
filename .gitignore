@@ -1,3 +1,4 @@
 myenv/
+venv/
 /Git codes.txt
 .gitignore
