@@ -62,6 +62,18 @@ continent = region[region['Region_nr'].isin(continent_identifiers)].copy()
 
 continent = continent.rename(columns={'Region': 'Continent'})
 
+# Renaming values in the Continent column
+continent['Continent'] = continent['Continent'].replace({
+    'Total Africa': 'Africa',
+    'Total Americas': 'Americas',
+    'Total Asia': 'Asia',
+    'Total Europe': 'Europe',
+    'Total Oceania': 'Oceania',
+    'Total World': 'World',
+    'Total North America': 'North America',
+    'Total South America': 'South America'
+})
+
 # Dropping the continent rows from the original DataFrame 
 region = region[~region['Region_nr'].isin(continent_identifiers)].copy()
 
@@ -233,7 +245,8 @@ class Continent(Region):
         # Assigns a variable with continent for use in dynamic methods
         area_type = 'continent'
         return area_type
-    
+
+ # menu function to display the menu options   
 def menu(region, continent):
     # Initialize classes with provided dataframes
     region_instance = Region(region)
@@ -251,7 +264,11 @@ def menu(region, continent):
         print("7. Exit")
         
         try:
-            choice = int(input("Choose an option: "))
+            choice = int(input("Choose an option (1-7): "))
+            if choice < 1 or choice > 7:
+                print("Invalid option. Please choose a number between 1 and 7.")
+                continue
+
             if choice == 7:
                 print("Exiting program.")
                 break
@@ -266,52 +283,66 @@ def menu(region, continent):
                     else:
                         print("Invalid input. Please enter 'yes' or 'no'.")
 
+            def select_region_or_continent(entity, column_name):
+                """Helper function to select a region or continent by number."""
+                print(f"\nAvailable {entity}s:")
+                for i, name in enumerate(column_name.unique(), 1):
+                    print(f"{i}. {name}")
+                while True:
+                    try:
+                        choice = int(input(f"Select a {entity} by number: "))
+                        if choice < 1 or choice > len(column_name.unique()):
+                            print(f"Invalid choice. Please choose a valid {entity} number.")
+                            continue
+                        return column_name.unique()[choice - 1]
+                    except ValueError:
+                        print("Invalid input. Please enter a valid number.")
+
+            def select_year(column_name):
+                """Helper function to select a year by number."""
+                print("\nAvailable Years:")
+                for i, year in enumerate(column_name.unique(), 1):
+                    print(f"{i}. {year}")
+                while True:
+                    try:
+                        year_choice = int(input("Select a year by number: "))
+                        if year_choice < 1 or year_choice > len(column_name.unique()):
+                            print("Invalid choice. Please choose a valid year number.")
+                            continue
+                        return column_name.unique()[year_choice - 1]
+                    except ValueError:
+                        print("Invalid input. Please enter a valid number.")
+
             if choice == 1:  # Display population
                 while True:
                     print("\nDo you want to display population for:")
                     print("1. Region")
                     print("2. Continent")
-                    sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                    try:
+                        sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                        if sub_choice not in [1, 2]:
+                            print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
+                            continue
+                    except ValueError:
+                        print("Invalid input. Please enter a valid number.")
+                        continue
 
                     if sub_choice == 1:  # Regions
                         while True:
-                            print("\nAvailable Regions:")
-                            for i, reg in enumerate(region['Region'].unique(), 1):
-                                print(f"{i}. {reg}")
-                            region_choice = int(input("Select a region by number: "))
-                            area_name = region['Region'].unique()[region_choice - 1]
-
-                            print("\nAvailable Years:")
-                            for i, yr in enumerate(region['Year'].unique(), 1):
-                                print(f"{i}. {yr}")
-                            year_choice = int(input("Select a year by number: "))
-                            year = region['Year'].unique()[year_choice - 1]
-
+                            area_name = select_region_or_continent("region", region['Region'])
+                            year = select_year(region['Year'])
                             region_instance.display_population(area_name, year)
                             if not analyze_more():
                                 break
 
                     elif sub_choice == 2:  # Continents
                         while True:
-                            print("\nAvailable Continents:")
-                            for i, cont in enumerate(continent['Continent'].unique(), 1):
-                                print(f"{i}. {cont}")
-                            continent_choice = int(input("Select a continent by number: "))
-                            area_name = continent['Continent'].unique()[continent_choice - 1]
-
-                            print("\nAvailable Years:")
-                            for i, yr in enumerate(continent['Year'].unique(), 1):
-                                print(f"{i}. {yr}")
-                            year_choice = int(input("Select a year by number: "))
-                            year = continent['Year'].unique()[year_choice - 1]
-
+                            area_name = select_region_or_continent("continent", continent['Continent'])
+                            year = select_year(continent['Year'])
                             continent_instance.display_population(area_name, year)
                             if not analyze_more():
                                 break
 
-                    else:
-                        print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
-                        continue
                     break
 
             elif choice == 2:  # Compare population
@@ -319,51 +350,33 @@ def menu(region, continent):
                     print("\nDo you want to compare populations for:")
                     print("1. Region")
                     print("2. Continent")
-                    sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                    try:
+                        sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                        if sub_choice not in [1, 2]:
+                            print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
+                            continue
+                    except ValueError:
+                        print("Invalid input. Please enter a valid number.")
+                        continue
 
-                    if sub_choice == 1:
+                    if sub_choice == 1:  # Regions
                         while True:
-                            print("\nAvailable Regions:")
-                            for i, reg in enumerate(region['Region'].unique(), 1):
-                                print(f"{i}. {reg}")
-                            region_choice1 = int(input("Select the first region by number: "))
-                            region_choice2 = int(input("Select the second region by number: "))
-                            area_name1 = region['Region'].unique()[region_choice1 - 1]
-                            area_name2 = region['Region'].unique()[region_choice2 - 1]
-
-                            print("\nAvailable Years:")
-                            for i, yr in enumerate(region['Year'].unique(), 1):
-                                print(f"{i}. {yr}")
-                            year_choice = int(input("Select a year by number: "))
-                            year = region['Year'].unique()[year_choice - 1]
-
+                            area_name1 = select_region_or_continent("region", region['Region'])
+                            area_name2 = select_region_or_continent("region", region['Region'])
+                            year = select_year(region['Year'])
                             region_instance.population_comparison(area_name1, area_name2, year)
                             if not analyze_more():
                                 break
 
-                    elif sub_choice == 2:
+                    elif sub_choice == 2:  # Continents
                         while True:
-                            print("\nAvailable Continents:")
-                            for i, cont in enumerate(continent['Continent'].unique(), 1):
-                                print(f"{i}. {cont}")
-                            continent_choice1 = int(input("Select the first continent by number: "))
-                            continent_choice2 = int(input("Select the second continent by number: "))
-                            area_name1 = continent['Continent'].unique()[continent_choice1 - 1]
-                            area_name2 = continent['Continent'].unique()[continent_choice2 - 1]
-
-                            print("\nAvailable Years:")
-                            for i, yr in enumerate(continent['Year'].unique(), 1):
-                                print(f"{i}. {yr}")
-                            year_choice = int(input("Select a year by number: "))
-                            year = continent['Year'].unique()[year_choice - 1]
-
+                            area_name1 = select_region_or_continent("continent", continent['Continent'])
+                            area_name2 = select_region_or_continent("continent", continent['Continent'])
+                            year = select_year(continent['Year'])
                             continent_instance.population_comparison(area_name1, area_name2, year)
                             if not analyze_more():
                                 break
 
-                    else:
-                        print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
-                        continue
                     break
 
             elif choice == 3:  # Sort regions or continents by population size
@@ -371,27 +384,21 @@ def menu(region, continent):
                     print("\nDo you want to sort by population size for:")
                     print("1. Region")
                     print("2. Continent")
-                    sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                    try:
+                        sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                        if sub_choice not in [1, 2]:
+                            print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
+                            continue
+                    except ValueError:
+                        print("Invalid input. Please enter a valid number.")
+                        continue
 
                     if sub_choice == 1:
-                        print("\nAvailable Years:")
-                        for i, yr in enumerate(region['Year'].unique(), 1):
-                            print(f"{i}. {yr}")
-                        year_choice = int(input("Select a year by number: "))
-                        year = region['Year'].unique()[year_choice - 1]
-
+                        year = select_year(region['Year'])
                         region_instance.population_sort(year)
                     elif sub_choice == 2:
-                        print("\nAvailable Years:")
-                        for i, yr in enumerate(continent['Year'].unique(), 1):
-                            print(f"{i}. {yr}")
-                        year_choice = int(input("Select a year by number: "))
-                        year = continent['Year'].unique()[year_choice - 1]
-
+                        year = select_year(continent['Year'])
                         continent_instance.population_sort(year)
-                    else:
-                        print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
-                        continue
 
                     if not analyze_more():
                         break
@@ -401,39 +408,23 @@ def menu(region, continent):
                     print("\nDo you want to calculate growth rate for:")
                     print("1. Region")
                     print("2. Continent")
-                    sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                    try:
+                        sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                        if sub_choice not in [1, 2]:
+                            print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
+                            continue
+                    except ValueError:
+                        print("Invalid input. Please enter a valid number.")
+                        continue
 
                     if sub_choice == 1:
-                        print("\nAvailable Regions:")
-                        for i, reg in enumerate(region['Region'].unique(), 1):
-                            print(f"{i}. {reg}")
-                        region_choice = int(input("Select a region by number: "))
-                        area_name = region['Region'].unique()[region_choice - 1]
-
-                        print("\nAvailable Years:")
-                        for i, yr in enumerate(region['Year'].unique(), 1):
-                            print(f"{i}. {yr}")
-                        year_choice = int(input("Select a year by number: "))
-                        year = region['Year'].unique()[year_choice - 1]
-
+                        area_name = select_region_or_continent("region", region['Region'])
+                        year = select_year(region['Year'])
                         region_instance.growth_calculator(area_name, year)
                     elif sub_choice == 2:
-                        print("\nAvailable Continents:")
-                        for i, cont in enumerate(continent['Continent'].unique(), 1):
-                            print(f"{i}. {cont}")
-                        continent_choice = int(input("Select a continent by number: "))
-                        area_name = continent['Continent'].unique()[continent_choice - 1]
-
-                        print("\nAvailable Years:")
-                        for i, yr in enumerate(continent['Year'].unique(), 1):
-                            print(f"{i}. {yr}")
-                        year_choice = int(input("Select a year by number: "))
-                        year = continent['Year'].unique()[year_choice - 1]
-
+                        area_name = select_region_or_continent("continent", continent['Continent'])
+                        year = select_year(continent['Year'])
                         continent_instance.growth_calculator(area_name, year)
-                    else:
-                        print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
-                        continue
 
                     if not analyze_more():
                         break
@@ -443,43 +434,25 @@ def menu(region, continent):
                     print("\nDo you want to compare growth rates for:")
                     print("1. Region")
                     print("2. Continent")
-                    sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                    try:
+                        sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                        if sub_choice not in [1, 2]:
+                            print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
+                            continue
+                    except ValueError:
+                        print("Invalid input. Please enter a valid number.")
+                        continue
 
                     if sub_choice == 1:
-                        print("\nAvailable Regions:")
-                        for i, reg in enumerate(region['Region'].unique(), 1):
-                            print(f"{i}. {reg}")
-                        region_choice1 = int(input("Select the first region by number: "))
-                        region_choice2 = int(input("Select the second region by number: "))
-                        area_name1 = region['Region'].unique()[region_choice1 - 1]
-                        area_name2 = region['Region'].unique()[region_choice2 - 1]
-
-                        print("\nAvailable Years:")
-                        for i, yr in enumerate(region['Year'].unique(), 1):
-                            print(f"{i}. {yr}")
-                        year_choice = int(input("Select a year by number: "))
-                        year = region['Year'].unique()[year_choice - 1]
-
+                        area_name1 = select_region_or_continent("region", region['Region'])
+                        area_name2 = select_region_or_continent("region", region['Region'])
+                        year = select_year(region['Year'])
                         region_instance.growth_comparison(area_name1, area_name2, year)
                     elif sub_choice == 2:
-                        print("\nAvailable Continents:")
-                        for i, cont in enumerate(continent['Continent'].unique(), 1):
-                            print(f"{i}. {cont}")
-                        continent_choice1 = int(input("Select the first continent by number: "))
-                        continent_choice2 = int(input("Select the second continent by number: "))
-                        area_name1 = continent['Continent'].unique()[continent_choice1 - 1]
-                        area_name2 = continent['Continent'].unique()[continent_choice2 - 1]
-
-                        print("\nAvailable Years:")
-                        for i, yr in enumerate(continent['Year'].unique(), 1):
-                            print(f"{i}. {yr}")
-                        year_choice = int(input("Select a year by number: "))
-                        year = continent['Year'].unique()[year_choice - 1]
-
+                        area_name1 = select_region_or_continent("continent", continent['Continent'])
+                        area_name2 = select_region_or_continent("continent", continent['Continent'])
+                        year = select_year(continent['Year'])
                         continent_instance.growth_comparison(area_name1, area_name2, year)
-                    else:
-                        print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
-                        continue
 
                     if not analyze_more():
                         break
@@ -489,33 +462,25 @@ def menu(region, continent):
                     print("\nDo you want to sort by growth rate for:")
                     print("1. Region")
                     print("2. Continent")
-                    sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                    try:
+                        sub_choice = int(input("Choose 1 for Region or 2 for Continent: "))
+                        if sub_choice not in [1, 2]:
+                            print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
+                            continue
+                    except ValueError:
+                        print("Invalid input. Please enter a valid number.")
+                        continue
 
                     if sub_choice == 1:
-                        print("\nAvailable Years:")
-                        for i, yr in enumerate(region['Year'].unique(), 1):
-                            print(f"{i}. {yr}")
-                        year_choice = int(input("Select a year by number: "))
-                        year = region['Year'].unique()[year_choice - 1]
-
+                        year = select_year(region['Year'])
                         region_instance.growth_sort(year)
                     elif sub_choice == 2:
-                        print("\nAvailable Years:")
-                        for i, yr in enumerate(continent['Year'].unique(), 1):
-                            print(f"{i}. {yr}")
-                        year_choice = int(input("Select a year by number: "))
-                        year = continent['Year'].unique()[year_choice - 1]
-
+                        year = select_year(continent['Year'])
                         continent_instance.growth_sort(year)
-                    else:
-                        print("Invalid choice. Please choose 1 for Region or 2 for Continent.")
-                        continue
 
                     if not analyze_more():
                         break
 
-            else:
-                print("Invalid choice. Please select an option from the menu.")
         except ValueError:
             print("Invalid input. Please enter a valid number.")
 
