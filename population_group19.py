@@ -232,11 +232,6 @@ class Region:
 # subclass Continent inherits from Region
 class Continent(Region):
     
-    # Initialize subclass Continent with all methods from Region
-    def __init__(self, data):
-        self.data = data
-        Region.__init__(self, data)
-    
     def area_type(self):
         
         # This method overwrites the one in Region to allow the other methods
